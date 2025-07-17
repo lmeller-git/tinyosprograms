@@ -5,6 +5,9 @@ fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();
     let out_dir_path = Path::new(&out_dir);
 
+    // TODO parse package/bin name from Cargo.toml
+    let bin_name = env::var("CARGO_BIN_NAME").unwrap_or("example-rs".into());
+
     let bin_dir = out_dir_path
         .parent()
         .unwrap()
@@ -16,13 +19,13 @@ fn main() {
     if !Command::new("ln")
         .args([
             "-sf",
-            &format!("{}", bin_dir.join("example-rs").display()),
+            &format!("{}", bin_dir.join(&bin_name).display()),
             &format!("{}", manifest_dir.join("a.out").display()),
         ])
         .status()
         .unwrap()
         .success()
     {
-        panic!("could not generate symlink a.out to bin");
+        panic!("could not generate symlink a.out to bin {}", &bin_name);
     }
 }

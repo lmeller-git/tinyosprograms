@@ -6,6 +6,6 @@ use libtinyos::{exit, println};
 
 #[unsafe(no_mangle)]
 pub extern "C" fn main() -> ! {
-    println!("hello from userland");
+    println!("Hello World from example-rs");
     exit(0);
 }
