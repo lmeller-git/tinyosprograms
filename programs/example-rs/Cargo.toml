@@ -7,7 +7,8 @@ edition = "2024"
 default = []
 
 [dependencies]
-libtinyos = { git = "https://github.com/lmeller-git/libtinyos" }
+# libtinyos = { git = "https://github.com/lmeller-git/libtinyos" }
+libtinyos = { path = "../../../libtinyos" }
 
 [profile.dev]
 panic = "abort"
