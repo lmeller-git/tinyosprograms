@@ -1,7 +1,7 @@
-#include "c_bindings.h"
+#include "../includes/c_bindings.h"
 
 void _start(void) {
-    const char* msg = "Hello world from C";
+    const char* msg = "Hello world from C\n";
     __print(msg);
     __c_exit(0);
 }
