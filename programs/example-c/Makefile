@@ -30,6 +30,7 @@ libtinyos:
 		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.a -o includes/libtinyos/libtinyos.a; \
 		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.h -o includes/libtinyos.h; \  
 	fi
+	echo "downloaded latest libtinyos release"
 	
 clean:
 	rm a.out
