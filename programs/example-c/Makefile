@@ -24,7 +24,7 @@ libtinyos:
 	else \
 		cd includes/libtinyos && git pull; \
 	fi
-	cd includes/libtinyos && cargo build --release && mv c_bindings.h ..
+	cd includes/libtinyos && cargo build --release && mv libtinyos/libtinyos.h ..
 	
 clean:
 	rm a.out

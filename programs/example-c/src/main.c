@@ -1,4 +1,4 @@
-#include "../includes/c_bindings.h"
+#include "../includes/libtinyos.h"
 
 void _start(void) {
     const char* msg = "Hello world from C\n";
