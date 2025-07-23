@@ -1,4 +1,4 @@
-RUST_LIB_PATH ?= "includes/libtinyos/target/target/release/liblibtinyos.a"
+RUST_LIB_PATH ?= "includes/libtinyos/liblibtinyos.a"
 LIBGCC_PATH ?= "/usr/lib/gcc/x86_64-linux-gnu/12/libgcc.a"
 LINKER_PATH ?= ./linker.ld
 SRC ?= src/main.c
@@ -19,14 +19,17 @@ build:
 libtinyos:
 	mkdir -p includes
 	if [ ! -d includes/libtinyos ]; then \
-		echo "cloning libtinyos" \
-		git clone https://github.com/lmeller-git/libtinyos includes/libtinyos && echo "libtinyos cloned succesfully"; \
+		echo "downloading latest libtinyos release"; \
+		mkdir -p includes/libtinyos; \
+		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.a -o includes/libtinyos/libtinyos.a; \
+		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.h -o includes/libtinyos.h; \  
 	else \
-		cd includes/libtinyos && git pull; \
+		echo "cleaning up includes"; \
+		rm -rf includes/; \
+		echo "downloading latest libtinyos release"; \
+		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.a -o includes/libtinyos/libtinyos.a; \
+		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.h -o includes/libtinyos.h; \  
 	fi
-	ls -lAh 
-	ls -lAh includes/
-	cd includes/libtinyos && cargo build --release && mv libtinyos/libtinyos.h ..
 	
 clean:
 	rm a.out
