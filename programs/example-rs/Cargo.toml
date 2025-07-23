@@ -8,7 +8,8 @@ default = []
 
 [dependencies]
 # libtinyos = { git = "https://github.com/lmeller-git/libtinyos" }
-libtinyos = { path = "../../../libtinyos" }
+libtinyos = { path = "../../../libtinyos/libtinyos" }
+tinygraphics = { path = "../../../libtinyos/tinygraphics" }
 
 [profile.dev]
 panic = "abort"
