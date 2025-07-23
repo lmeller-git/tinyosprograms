@@ -20,10 +20,12 @@ libtinyos:
 	mkdir -p includes
 	if [ ! -d includes/libtinyos ]; then \
 		echo "cloning libtinyos" \
-		git clone https://github.com/lmeller-git/libtinyos includes/libtinyos; \
+		git clone https://github.com/lmeller-git/libtinyos includes/libtinyos && echo "libtinyos cloned succesfully"; \
 	else \
 		cd includes/libtinyos && git pull; \
 	fi
+	ls -lAh 
+	ls -lAh includes/
 	cd includes/libtinyos && cargo build --release && mv libtinyos/libtinyos.h ..
 	
 clean:
