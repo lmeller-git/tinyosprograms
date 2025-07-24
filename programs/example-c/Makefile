@@ -1,4 +1,4 @@
-RUST_LIB_PATH ?= "includes/libtinyos/liblibtinyos.a"
+RUST_LIB_PATH ?= "includes/libtinyos/libtinyos.a"
 LIBGCC_PATH ?= "/usr/lib/gcc/x86_64-linux-gnu/12/libgcc.a"
 LINKER_PATH ?= ./linker.ld
 SRC ?= src/main.c
@@ -18,10 +18,10 @@ build:
 
 libtinyos:
 	mkdir -p includes
-	if [ ! -d includes/libtinyos ]; then \
-		echo "downloading latest libtinyos release" \
-		mkdir -p includes/libtinyos \
-		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.a -o includes/libtinyos/libtinyos.a \
+	if [ ! -e includes/libtinyos/libtinyos.a ] || [ ! -e includes/libtinyos.h ]; then \
+		echo "downloading latest libtinyos release"; \
+		mkdir -p includes/libtinyos; \
+		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.a -o includes/libtinyos/libtinyos.a; \
 		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.h -o includes/libtinyos.h; \
 	fi
 
