@@ -39,6 +39,7 @@ pub extern "C" fn main() -> ! {
     );
     graphics_backend.draw_primitive(&text).unwrap();
     graphics_backend.flush().unwrap();
+
     println!("Hello World from example-rs");
     exit(0);
 }

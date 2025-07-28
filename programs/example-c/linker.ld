@@ -28,9 +28,7 @@ SECTIONS
   } :text_data
   
   /DISCARD/ : {
-    *(.eh_frame*)
     *(.note .note*)
     *(.note.GNU-stack)
-    *(.comment)
   }
 }
