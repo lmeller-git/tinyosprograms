@@ -26,6 +26,6 @@ libtinyos:
 	fi
 
 clean:
-	rm a.out
+	rm -f a.out
 	rm -rf includes/
 
