@@ -1,0 +1,3 @@
+[submodule "programs/tinyTetris"]
+	path = programs/tinyTetris
+	url = https://github.com/lmeller-git/tinyTetris
