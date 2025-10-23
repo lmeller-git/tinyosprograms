@@ -21,8 +21,8 @@ libtinyos:
 	if [ ! -e includes/libtinyos/libtinyos.a ] || [ ! -e includes/libtinyos.h ]; then \
 		echo "downloading latest libtinyos release"; \
 		mkdir -p includes/libtinyos; \
-		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.a -o includes/libtinyos/libtinyos.a; \
-		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.0.0/libtinyos.h -o includes/libtinyos.h; \
+		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.1.0/libtinyos.a -o includes/libtinyos/libtinyos.a; \
+		curl -L https://github.com/lmeller-git/libtinyos/releases/download/v0.1.0/libtinyos.h -o includes/libtinyos.h; \
 	fi
 
 	echo "libtinyos in includes/"
