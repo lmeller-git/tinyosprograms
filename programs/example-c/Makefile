@@ -10,7 +10,7 @@ CFLAGS = -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -static \
 
 .PHONY: all build clean libtinyos
 
-all: libtinyos build
+all: clean libtinyos build
 
 build:
 	$(MAKE) libtinyos
