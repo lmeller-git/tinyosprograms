@@ -3,20 +3,35 @@
 
 extern crate alloc;
 
-use libtinyos::{exit, println};
+use libtinyos::{
+    println,
+    syscalls::{self, exit},
+};
 use tinygraphics::{
     backend::{GraphicsBackend, PrimitiveDrawer},
     mono_font::{self, MonoTextStyleBuilder},
     pixelcolor::Rgb888,
-    prelude::{Point, Primitive, RgbColor},
-    primitives::PrimitiveStyleBuilder,
+    prelude::{Point, Primitive, RgbColor, Size},
+    primitives::{PrimitiveStyleBuilder, Rectangle},
     text::Text,
 };
 
 #[unsafe(no_mangle)]
 pub extern "C" fn main() -> ! {
-    let mut graphics_backend = PrimitiveDrawer::default();
+    let path = "/proc/kernel/io/serial";
+    let serial = unsafe {
+        syscalls::open(
+            path.as_ptr(),
+            path.bytes().len(),
+            syscalls::OpenOptions::WRITE,
+        )
+    }
+    .unwrap();
+    println!("Now printing to default stdout");
+    unsafe { syscalls::dup(serial, Some(syscalls::STDOUT_FILENO)) }.unwrap();
+    println!("Now printing to serial");
 
+    let mut graphics_backend = PrimitiveDrawer::default();
     let glyph = tinygraphics::primitives::Circle::new(Point::new(500, 100), 42);
     let style = PrimitiveStyleBuilder::new()
         .stroke_color(Rgb888::RED)
@@ -38,8 +53,12 @@ pub extern "C" fn main() -> ! {
         text_style,
     );
     graphics_backend.draw_primitive(&text).unwrap();
-    graphics_backend.flush().unwrap();
+
+    // This currently does nothing, as (default) fb == kernel fb
+    graphics_backend
+        .flush(Rectangle::new(Point::new(500, 100), Size::new(50, 200)))
+        .unwrap();
 
     println!("Hello World from example-rs");
-    exit(0);
+    unsafe { exit(0) }
 }
