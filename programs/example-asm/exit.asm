@@ -4,7 +4,7 @@ section .text
 _start:
         ; print msg
         mov rax, 3
-        mov rdi, 0
+        mov rdi, 1
         mov rsi, msg
         mov rdx, len
         int 0x80
