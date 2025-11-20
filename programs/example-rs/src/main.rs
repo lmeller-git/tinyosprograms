@@ -3,6 +3,8 @@
 
 extern crate alloc;
 
+use core::time::Duration;
+
 use libtinyos::{
     println,
     syscalls::{self, exit},
