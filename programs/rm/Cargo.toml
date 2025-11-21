@@ -1,0 +1,16 @@
+[package]
+name = "rm"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+
+[dependencies]
+libtinyos = { git = "https://github.com/lmeller-git/libtinyos", default-features = false }
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
