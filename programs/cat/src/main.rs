@@ -4,7 +4,7 @@
 use libtinyos::syscalls::{self, OpenOptions, STDERR_FILENO, STDOUT_FILENO};
 
 #[unsafe(no_mangle)]
-pub extern "C" fn _start(argc: *const u8, _: *const u8, buf_size: usize) -> ! {
+pub extern "C" fn main(argc: *const u8, _: *const u8, buf_size: usize) -> ! {
     // TODO check if target is not file, if so do not read
     if argc.is_null() || buf_size == 0 {
         unsafe { syscalls::exit(0) };
