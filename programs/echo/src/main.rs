@@ -1,12 +1,21 @@
 #![no_std]
 #![no_main]
+#![feature(str_from_raw_parts)]
 
-use libtinyos::syscalls::{self, STDERR_FILENO, STDOUT_FILENO};
+use alloc::str;
+use libtinyos::{
+    serial_println,
+    syscalls::{self, STDERR_FILENO, STDOUT_FILENO},
+};
+extern crate alloc;
 
 #[unsafe(no_mangle)]
-pub extern "C" fn _start(arg: *const u8, _: *const u8, buf_size: usize) -> ! {
-    if !arg.is_null() {
-        if unsafe { syscalls::write(STDOUT_FILENO, arg, buf_size) }.is_err() {
+pub extern "C" fn main(argc: *const u8, _: *const u8, buf_size: usize) -> ! {
+    serial_println!("received: {:#x} and {}", argc as usize, buf_size);
+    if !argc.is_null() {
+        let s = unsafe { str::from_raw_parts(argc, buf_size) };
+        serial_println!("received: {}", s);
+        if unsafe { syscalls::write(STDOUT_FILENO, argc, buf_size) }.is_err() {
             let bytes = b"could not write messgae to stdout";
             _ = unsafe { syscalls::write(STDERR_FILENO, bytes.as_ptr(), bytes.len()) };
         }
