@@ -27,7 +27,7 @@ pub extern "C" fn main(argc: *const u8, _: *const u8, buf_size: usize) -> ! {
             )
         };
     } else {
-        let msg = b"could not read specified dir";
+        let msg = b"could not read specified dir\n";
         _ = unsafe { syscalls::write(STDERR_FILENO, msg.as_ptr(), msg.len()) };
     }
     unsafe { syscalls::exit(0) }
