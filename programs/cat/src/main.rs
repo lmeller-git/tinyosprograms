@@ -4,14 +4,14 @@
 use libtinyos::syscalls::{self, OpenOptions, STDERR_FILENO, STDOUT_FILENO};
 
 #[unsafe(no_mangle)]
-pub extern "C" fn main(argc: *const u8, _: *const u8, buf_size: usize) -> ! {
+pub unsafe extern "C" fn main(argc: usize, argv: *const u8) -> ! {
     // TODO check if target is not file, if so do not read
-    if argc.is_null() || buf_size == 0 {
+    if argv.is_null() || argc == 0 {
         unsafe { syscalls::exit(0) };
     }
 
     let mut buf = [0; 128];
-    if let Ok(file) = unsafe { syscalls::open(argc, buf_size, OpenOptions::READ) } {
+    if let Ok(file) = unsafe { syscalls::open(argv, argc, OpenOptions::READ) } {
         while let Ok(n_read) = unsafe { syscalls::read(file, buf.as_mut_ptr(), buf.len(), 0) }
             && n_read > 0
         {

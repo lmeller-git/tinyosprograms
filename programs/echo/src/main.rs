@@ -10,12 +10,12 @@ use libtinyos::{
 extern crate alloc;
 
 #[unsafe(no_mangle)]
-pub extern "C" fn main(argc: *const u8, _: *const u8, buf_size: usize) -> ! {
-    serial_println!("received: {:#x} and {}", argc as usize, buf_size);
-    if !argc.is_null() {
-        let s = unsafe { str::from_raw_parts(argc, buf_size) };
+pub unsafe extern "C" fn main(argc: usize, argv: *const u8) -> ! {
+    serial_println!("received: {:#x} and {}", argv as usize, argc);
+    if !argv.is_null() {
+        let s = unsafe { str::from_raw_parts(argv, argc) };
         serial_println!("received: {}", s);
-        if unsafe { syscalls::write(STDOUT_FILENO, argc, buf_size) }.is_err() {
+        if unsafe { syscalls::write(STDOUT_FILENO, argv, argc) }.is_err() {
             let bytes = b"could not write messgae to stdout";
             _ = unsafe { syscalls::write(STDERR_FILENO, bytes.as_ptr(), bytes.len()) };
         }

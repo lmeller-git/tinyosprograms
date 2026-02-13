@@ -4,8 +4,8 @@
 use libtinyos::syscalls::{self, STDERR_FILENO};
 
 #[unsafe(no_mangle)]
-pub extern "C" fn main(_argc: *const u8, _: *const u8, _buf_size: usize) -> ! {
-    if _argc.is_null() || _buf_size == 0 {
+pub extern "C" fn main(argc: usize, argv: *const u8) -> ! {
+    if argv.is_null() || argc == 0 {
         unsafe { syscalls::exit(0) };
     }
 
