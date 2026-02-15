@@ -12,7 +12,8 @@ pub unsafe extern "C" fn main(argc: usize, argv: *const u8) -> ! {
 
     let mut buf = [0; 128];
     if let Ok(file) = unsafe { syscalls::open(argv, argc, OpenOptions::READ) } {
-        while let Ok(n_read) = unsafe { syscalls::read(file, buf.as_mut_ptr(), buf.len(), 0) }
+        while let Ok(n_read) =
+            unsafe { syscalls::read(file, buf.as_mut_ptr(), buf.len(), -1_isize as usize) }
             && n_read > 0
         {
             _ = unsafe {

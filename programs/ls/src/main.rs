@@ -16,7 +16,8 @@ pub extern "C" fn main(argc: usize, argv: *const u8) -> ! {
             if has_args { argc } else { 1 },
             OpenOptions::READ,
         )
-    } && let Ok(n_read) = unsafe { syscalls::read(dir, buf.as_mut_ptr(), buf.len(), 0) }
+    } && let Ok(n_read) =
+        unsafe { syscalls::read(dir, buf.as_mut_ptr(), buf.len(), -1_isize as usize) }
         && n_read >= 0
     {
         _ = unsafe {
