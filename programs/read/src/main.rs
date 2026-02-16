@@ -4,7 +4,7 @@
 
 use libtinyos::{
     serial_println,
-    syscalls::{self, FileDescriptor, STDIN_FILENO, STDOUT_FILENO},
+    syscalls::{self, STDIN_FILENO, STDOUT_FILENO},
 };
 extern crate alloc;
 
@@ -14,7 +14,10 @@ pub unsafe extern "C" fn main(argc: usize, argv: *const u8) -> ! {
     let fd = if argv.is_null() {
         STDIN_FILENO
     } else {
-        unsafe { *(argv as *const FileDescriptor) }
+        alloc::str::from_utf8(unsafe { core::slice::from_raw_parts(argv, argc) })
+            .unwrap()
+            .parse()
+            .unwrap_or(STDIN_FILENO)
     };
 
     let mut buf = [0; 128];
