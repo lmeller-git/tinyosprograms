@@ -9,7 +9,7 @@ use libtinyos::{
 
 #[unsafe(no_mangle)]
 pub fn main() -> Result<(), ProcessError> {
-    let msg = args().as_str();
+    let msg = args().map(|arg| arg.as_str()).unwrap_or_default();
     unsafe { syscalls::write(STDOUT_FILENO, msg.as_ptr(), msg.len()) }
         .map(|_| ())
         .map_err(ProcessError::Sys)

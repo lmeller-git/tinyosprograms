@@ -14,7 +14,7 @@ extern crate alloc;
 #[unsafe(no_mangle)]
 pub fn main() -> Result<(), ProcessError> {
     // TODO check if target is file, if so do not read
-    let path = args().as_str();
+    let path = args().map(|arg| arg.as_str()).unwrap_or_default();
     let mut path = Path::new(path).to_owned();
     path.canonicalize();
 

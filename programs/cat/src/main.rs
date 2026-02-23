@@ -10,7 +10,7 @@ use libtinyos::{
 #[unsafe(no_mangle)]
 pub fn main() -> Result<(), ProcessError> {
     // TODO check if target is not file, if so do not read
-    let path = args().as_bytes();
+    let path = args().unwrap().as_bytes();
     let mut buf = [0; 128];
     let file = unsafe { syscalls::open(path.as_ptr(), path.len(), OpenOptions::READ) }
         .map_err(ProcessError::Sys)?;

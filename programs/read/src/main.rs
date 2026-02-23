@@ -10,7 +10,7 @@ use libtinyos::{
 
 #[unsafe(no_mangle)]
 pub fn main() -> Result<(), ProcessError> {
-    let arg = args().as_str();
+    let arg = args().unwrap().as_str();
     let fd = arg.parse().unwrap_or(STDIN_FILENO);
 
     let mut buf = [0; 128];
