@@ -1,16 +1,14 @@
 #![no_std]
 #![no_main]
 
-use libtinyos::syscalls::{self, STDERR_FILENO};
+use libtinyos::{
+    process::ProcessError,
+    syscalls::{self, STDERR_FILENO},
+};
 
 #[unsafe(no_mangle)]
-pub extern "C" fn main(argc: usize, argv: *const u8) -> ! {
-    if argv.is_null() || argc == 0 {
-        unsafe { syscalls::exit(0) };
-    }
-
+pub fn main() -> Result<(), ProcessError> {
     let msg = b"currently not implemented";
     _ = unsafe { syscalls::write(STDERR_FILENO, msg.as_ptr(), msg.len()) };
-
-    unsafe { syscalls::exit(0) }
+    Ok(())
 }

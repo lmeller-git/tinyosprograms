@@ -1,33 +1,30 @@
 #![no_std]
 #![no_main]
 
-use libtinyos::syscalls::{self, OpenOptions, STDERR_FILENO, STDOUT_FILENO};
+use libtinyos::{
+    os::args,
+    process::ProcessError,
+    syscalls::{self, OpenOptions, STDOUT_FILENO},
+};
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn main(argc: usize, argv: *const u8) -> ! {
+pub fn main() -> Result<(), ProcessError> {
     // TODO check if target is not file, if so do not read
-    if argv.is_null() || argc == 0 {
-        unsafe { syscalls::exit(0) };
-    }
-
+    let path = args().as_bytes();
     let mut buf = [0; 128];
-    if let Ok(file) = unsafe { syscalls::open(argv, argc, OpenOptions::READ) } {
-        while let Ok(n_read) =
-            unsafe { syscalls::read(file, buf.as_mut_ptr(), buf.len(), -1_isize as usize) }
-            && n_read > 0
-        {
-            _ = unsafe {
-                syscalls::write(
-                    STDOUT_FILENO,
-                    buf[..n_read as usize].as_ptr(),
-                    n_read as usize,
-                )
-            };
-        }
-    } else {
-        let msg = b"could not read specified file";
-        _ = unsafe { syscalls::write(STDERR_FILENO, msg.as_ptr(), msg.len()) };
+    let file = unsafe { syscalls::open(path.as_ptr(), path.len(), OpenOptions::READ) }
+        .map_err(ProcessError::Sys)?;
+    while let Ok(n_read) =
+        unsafe { syscalls::read(file, buf.as_mut_ptr(), buf.len(), -1_isize as usize) }
+        && n_read > 0
+    {
+        _ = unsafe {
+            syscalls::write(
+                STDOUT_FILENO,
+                buf[..n_read as usize].as_ptr(),
+                n_read as usize,
+            )
+        };
     }
-
-    unsafe { syscalls::exit(0) }
+    Ok(())
 }

@@ -3,12 +3,7 @@
 
 extern crate alloc;
 
-use core::time::Duration;
-
-use libtinyos::{
-    println,
-    syscalls::{self, exit},
-};
+use libtinyos::{println, syscalls};
 use tinygraphics::{
     backend::{GraphicsBackend, PrimitiveDrawer},
     mono_font::{self, MonoTextStyleBuilder},
@@ -19,7 +14,7 @@ use tinygraphics::{
 };
 
 #[unsafe(no_mangle)]
-pub extern "C" fn main() -> ! {
+pub fn main() {
     let path = "/proc/kernel/io/serial";
     let serial = unsafe {
         syscalls::open(
@@ -62,5 +57,4 @@ pub extern "C" fn main() -> ! {
         .unwrap();
 
     println!("Hello World from example-rs");
-    unsafe { exit(0) }
 }

@@ -3,22 +3,15 @@
 #![feature(str_from_raw_parts)]
 
 use libtinyos::{
-    serial_println,
+    os::args,
+    process::ProcessError,
     syscalls::{self, STDIN_FILENO, STDOUT_FILENO},
 };
-extern crate alloc;
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn main(argc: usize, argv: *const u8) -> ! {
-    serial_println!("received: {:#x} and {}", argv as usize, argc);
-    let fd = if argv.is_null() {
-        STDIN_FILENO
-    } else {
-        alloc::str::from_utf8(unsafe { core::slice::from_raw_parts(argv, argc) })
-            .unwrap()
-            .parse()
-            .unwrap_or(STDIN_FILENO)
-    };
+pub fn main() -> Result<(), ProcessError> {
+    let arg = args().as_str();
+    let fd = arg.parse().unwrap_or(STDIN_FILENO);
 
     let mut buf = [0; 128];
 
@@ -27,6 +20,5 @@ pub unsafe extern "C" fn main(argc: usize, argv: *const u8) -> ! {
     {
         unsafe { syscalls::write(STDOUT_FILENO, buf[..n as usize].as_ptr(), n as usize) }.unwrap();
     }
-
-    unsafe { syscalls::exit(0) }
+    Ok(())
 }
