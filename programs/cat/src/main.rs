@@ -3,7 +3,7 @@
 
 use alloc::borrow::ToOwned;
 use libtinyos::{
-    os::args,
+    os::{args, env},
     path::Path,
     process::ProcessError,
     syscalls::{self, OpenOptions, STDOUT_FILENO},
@@ -16,6 +16,11 @@ pub fn main() -> Result<(), ProcessError> {
     // TODO check if target is not file, if so do not read
     let path = args().unwrap().as_str();
     let mut path = Path::new(path).to_owned();
+    if let Some(cwd) = env().and_then(|env| env.get("CWD")) {
+        let mut base_path = Path::new(cwd).to_owned();
+        base_path.push(path.as_ref());
+        path = base_path
+    }
     path.canonicalize();
 
     let mut buf = [0; 128];
