@@ -1,19 +1,32 @@
 #![no_std]
 #![no_main]
 
+use alloc::borrow::ToOwned;
 use libtinyos::{
     os::args,
+    path::Path,
     process::ProcessError,
     syscalls::{self, OpenOptions, STDOUT_FILENO},
 };
 
+extern crate alloc;
+
 #[unsafe(no_mangle)]
 pub fn main() -> Result<(), ProcessError> {
     // TODO check if target is not file, if so do not read
-    let path = args().unwrap().as_bytes();
+    let path = args().unwrap().as_str();
+    let mut path = Path::new(path).to_owned();
+    path.canonicalize();
+
     let mut buf = [0; 128];
-    let file = unsafe { syscalls::open(path.as_ptr(), path.len(), OpenOptions::READ) }
-        .map_err(ProcessError::Sys)?;
+    let file = unsafe {
+        syscalls::open(
+            path.as_str().as_ptr(),
+            path.as_str().len(),
+            OpenOptions::READ,
+        )
+    }
+    .map_err(ProcessError::Sys)?;
     while let Ok(n_read) =
         unsafe { syscalls::read(file, buf.as_mut_ptr(), buf.len(), -1_isize as usize) }
         && n_read > 0
@@ -25,6 +38,9 @@ pub fn main() -> Result<(), ProcessError> {
                 n_read as usize,
             )
         };
+        if (n_read as usize) < buf.len() {
+            break;
+        }
     }
     Ok(())
 }

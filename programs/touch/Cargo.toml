@@ -7,7 +7,7 @@ edition = "2024"
 default = []
 
 [dependencies]
-libtinyos = { git = "https://github.com/lmeller-git/libtinyos", default-features = false }
+libtinyos = { git = "https://github.com/lmeller-git/libtinyos" }
 
 [profile.dev]
 panic = "abort"
