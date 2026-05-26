@@ -29,7 +29,7 @@ pub fn main() -> Result<(), ProcessError> {
 
     for opt in options {
         match opt {
-            "+" | "-" => {
+            _ if opt.starts_with(['+', '-']) => {
                 is_plus = matches!(&opt[0..1], "+");
                 is_minus = !is_plus;
                 for perm_char in opt[1..].chars() {
@@ -93,7 +93,7 @@ pub fn main() -> Result<(), ProcessError> {
         (true, false) => PermUpdateStrategy::OR,
         (false, true) => PermUpdateStrategy::AND,
         (false, false) => {
-            eprintln!("Now permission modification was supplied.");
+            eprintln!("No permission modification was supplied.");
             return Ok(());
         }
     };
