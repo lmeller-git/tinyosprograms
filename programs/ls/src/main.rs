@@ -1,21 +1,31 @@
 #![no_std]
 #![no_main]
 
-use alloc::borrow::ToOwned;
+use alloc::{borrow::ToOwned, string::String, vec::Vec};
 use libtinyos::{
+    eprintln,
     os::{args, env},
     path::Path,
     process::ProcessError,
-    syscalls::{self, OpenOptions, STDOUT_FILENO},
+    syscalls::{self, FStat, NodeType, OpenOptions, STDOUT_FILENO},
 };
 
 extern crate alloc;
 
+#[derive(Debug, noshell::Parser)]
+struct MyArgs {
+    path: String,
+}
+
 #[unsafe(no_mangle)]
 pub fn main() -> Result<(), ProcessError> {
-    // TODO check if target is file, if so do not read
-    let path = args().map(|arg| arg.as_str()).unwrap_or_default();
-    let mut path = Path::new(path).to_owned();
+    let path: Vec<&str> = args()
+        .map(|arg| arg.as_str().split_ascii_whitespace().collect())
+        .unwrap_or_default();
+
+    let args = MyArgs::parse_from(&path);
+
+    let mut path = Path::new(&args.path).to_owned();
     if let Some(cwd) = env().and_then(|env| env.get("CWD")) {
         let mut base_path = Path::new(cwd).to_owned();
         base_path.push(path.as_ref());
@@ -33,6 +43,18 @@ pub fn main() -> Result<(), ProcessError> {
         )
     }
     .map_err(ProcessError::Sys)?;
+
+    let mut stat_buf = FStat::default();
+
+    unsafe { syscalls::fstat(dir, &mut stat_buf as *mut FStat) }.map_err(ProcessError::Sys)?;
+
+    if stat_buf.node_type != NodeType::DIR {
+        eprintln!(
+            "Tried to call ls on a non-dir node: {}. Use cat for that.",
+            path
+        );
+        return Err(ProcessError::Sys(syscalls::SysErrCode::OpDenied));
+    }
 
     while let Ok(n_read) =
         unsafe { syscalls::read(dir, buf.as_mut_ptr(), buf.len(), -1_isize as usize) }

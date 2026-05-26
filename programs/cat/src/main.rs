@@ -3,10 +3,11 @@
 
 use alloc::borrow::ToOwned;
 use libtinyos::{
+    eprintln,
     os::{args, env},
     path::Path,
     process::ProcessError,
-    syscalls::{self, OpenOptions, STDOUT_FILENO},
+    syscalls::{self, FStat, NodeType, OpenOptions, STDOUT_FILENO},
 };
 
 extern crate alloc;
@@ -32,6 +33,19 @@ pub fn main() -> Result<(), ProcessError> {
         )
     }
     .map_err(ProcessError::Sys)?;
+
+    let mut stat_buf = FStat::default();
+
+    unsafe { syscalls::fstat(file, &mut stat_buf as *mut FStat) }.map_err(ProcessError::Sys)?;
+
+    if stat_buf.node_type != NodeType::FILE {
+        eprintln!(
+            "Tried to call ls on a non-dir node: {}. Use cat for that.",
+            path
+        );
+        return Err(ProcessError::Sys(syscalls::SysErrCode::OpDenied));
+    }
+
     while let Ok(n_read) =
         unsafe { syscalls::read(file, buf.as_mut_ptr(), buf.len(), -1_isize as usize) }
         && n_read > 0
