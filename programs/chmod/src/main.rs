@@ -22,34 +22,29 @@ pub fn main() -> Result<(), ProcessError> {
     };
 
     let mut path = None;
-    let mut perms = NodePermissions::empty();
-    let mut is_minus = false;
-    let mut is_plus = false;
-    let mut modified_bits = NodePermissions::empty();
+    let mut to_add = NodePermissions::empty();
+    let mut to_remove = NodePermissions::empty();
 
     for opt in options {
         match opt {
             _ if opt.starts_with(['+', '-']) => {
-                is_plus = matches!(&opt[0..1], "+");
-                is_minus = !is_plus;
+                let is_add = opt.starts_with('+');
+
                 for perm_char in opt[1..].chars() {
-                    match perm_char {
-                        'r' => {
-                            perms.set(NodePermissions::R, is_plus);
-                            modified_bits.insert(NodePermissions::R)
-                        }
-                        'w' => {
-                            perms.set(NodePermissions::W, is_plus);
-                            modified_bits.insert(NodePermissions::W);
-                        }
-                        'x' => {
-                            perms.set(NodePermissions::X, is_plus);
-                            modified_bits.insert(NodePermissions::X);
-                        }
+                    let flag = match perm_char {
+                        'r' => NodePermissions::R,
+                        'w' => NodePermissions::W,
+                        'x' => NodePermissions::X,
                         _ => {
                             eprintln!("wrong arg in chmod: {}{}", &opt[0..1], perm_char);
                             return Err(ProcessError::Sys(syscalls::SysErrCode::InvalidArg));
                         }
+                    };
+
+                    if is_add {
+                        to_add.insert(flag);
+                    } else {
+                        to_remove.insert(flag);
                     }
                 }
             }
@@ -88,23 +83,35 @@ pub fn main() -> Result<(), ProcessError> {
     }
     .map_err(ProcessError::Sys)?;
 
-    let strategy = match (is_plus, is_minus) {
-        (true, true) => PermUpdateStrategy::OVERWRITE,
-        (true, false) => PermUpdateStrategy::OR,
-        (false, true) => PermUpdateStrategy::AND,
-        (false, false) => {
-            eprintln!("No permission modification was supplied.");
-            return Ok(());
+    if to_add.is_empty() && to_remove.is_empty() {
+        eprintln!("No permission modification was supplied.");
+        return Ok(());
+    }
+
+    let strategy = if !to_add.is_empty() && to_remove.is_empty() {
+        PermUpdateStrategy::OR
+    } else if to_add.is_empty() && !to_remove.is_empty() {
+        PermUpdateStrategy::AND
+    } else {
+        PermUpdateStrategy::OVERWRITE
+    };
+
+    let final_mask = match strategy {
+        PermUpdateStrategy::OR => to_add,
+        PermUpdateStrategy::AND => !to_remove,
+        PermUpdateStrategy::OVERWRITE => {
+            let mut stat_buf = FStat::default();
+            unsafe { syscalls::fstat(f, &mut stat_buf as *mut FStat) }
+                .map_err(ProcessError::Sys)?;
+
+            let mut perms = stat_buf.permissions;
+            perms.insert(to_add);
+            perms.remove(to_remove);
+            perms
         }
     };
 
-    if strategy == PermUpdateStrategy::OVERWRITE {
-        let mut stat_buf = FStat::default();
-        unsafe { syscalls::fstat(f, &mut stat_buf as *mut FStat) }.map_err(ProcessError::Sys)?;
-        perms |= stat_buf.permissions & !modified_bits;
-    }
-
-    unsafe { syscalls::update_perms(f, perms, strategy) }.map_err(ProcessError::Sys)?;
+    unsafe { syscalls::update_perms(f, final_mask, strategy) }.map_err(ProcessError::Sys)?;
 
     unsafe { syscalls::close(f) }
         .map_err(ProcessError::Sys)
