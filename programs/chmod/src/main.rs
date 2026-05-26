@@ -78,7 +78,7 @@ pub fn main() -> Result<(), ProcessError> {
         syscalls::open(
             path.as_str().as_ptr(),
             path.as_str().len(),
-            OpenOptions::CREATE,
+            OpenOptions::empty(),
         )
     }
     .map_err(ProcessError::Sys)?;
