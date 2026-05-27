@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use alloc::{borrow::ToOwned, string::String, vec::Vec};
+use alloc::borrow::ToOwned;
 use libtinyos::{
     eprintln,
     os::{args, env},
@@ -12,20 +12,11 @@ use libtinyos::{
 
 extern crate alloc;
 
-#[derive(Debug, noshell::Parser)]
-struct MyArgs {
-    path: String,
-}
-
 #[unsafe(no_mangle)]
 pub fn main() -> Result<(), ProcessError> {
-    let path: Vec<&str> = args()
-        .map(|arg| arg.as_str().split_ascii_whitespace().collect())
-        .unwrap_or_default();
+    let path = args().map(|arg| arg.as_str()).unwrap_or_default();
 
-    let args = MyArgs::parse_from(&path);
-
-    let mut path = Path::new(&args.path).to_owned();
+    let mut path = Path::new(path).to_owned();
     if let Some(cwd) = env().and_then(|env| env.get("CWD")) {
         let mut base_path = Path::new(cwd).to_owned();
         base_path.push(path.as_ref());
