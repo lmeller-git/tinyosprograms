@@ -42,8 +42,13 @@ pub fn main() -> Result<(), ProcessError> {
     unsafe { syscalls::fstat(f, &mut stat_buf as *mut FStat) }.map_err(ProcessError::Sys)?;
 
     println!(
-        "Stat for file {}:\nsize: {}\nt_create: {}\nt_modify: {}\npermissions: {}",
-        path, stat_buf.size, stat_buf.t_create, stat_buf.t_mod, stat_buf.permissions
+        "Stat for file {}:\ntype: {}\nsize: {}\nt_create: {}\nt_modify: {}\npermissions: {}",
+        path,
+        stat_buf.node_type,
+        stat_buf.size,
+        stat_buf.t_create,
+        stat_buf.t_mod,
+        stat_buf.permissions
     );
 
     unsafe { syscalls::close(f) }
