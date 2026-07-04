@@ -39,7 +39,7 @@ pub fn main() -> Result<(), ProcessError> {
 
     unsafe { syscalls::fstat(dir, &mut stat_buf as *mut FStat) }.map_err(ProcessError::Sys)?;
 
-    if stat_buf.node_type != NodeType::DIR {
+    if !matches!(stat_buf.node_type, NodeType::DIR | NodeType::MOUNT) {
         eprintln!(
             "Tried to call ls on a non-dir node: {}. Use cat for that.",
             path
